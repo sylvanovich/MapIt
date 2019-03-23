@@ -10,7 +10,7 @@
 import UIKit
 import MapKit
 
-class PhotoMapViewController: UIViewController, LocationsViewControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class PhotoMapViewController: UIViewController, LocationsViewControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, MKMapViewDelegate {
     
     var pickedImage: UIImage!
     
@@ -26,6 +26,7 @@ class PhotoMapViewController: UIViewController, LocationsViewControllerDelegate,
         let region = MKCoordinateRegion(center: mapCenter, span: mapSpan)
         // Set animated property to true to animate the transition to the region
         mapView.setRegion(region, animated: true)
+        mapView.delegate = self
     }
     
     override func didReceiveMemoryWarning() {
@@ -80,5 +81,22 @@ class PhotoMapViewController: UIViewController, LocationsViewControllerDelegate,
         dismiss(animated: true) {
             self.performSegue(withIdentifier: "tagSegue", sender: nil)
         }
+    }
+    
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        let reuseID = "myAnnotationView"
+        
+        var annotationView = mapView.dequeueReusableAnnotationView(withIdentifier: reuseID)
+        if (annotationView == nil) {
+            annotationView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: reuseID)
+            annotationView!.canShowCallout = true
+            annotationView!.leftCalloutAccessoryView = UIImageView(frame: CGRect(x:0, y:0, width: 50, height:50))
+        }
+        
+        let imageView = annotationView?.leftCalloutAccessoryView as! UIImageView
+        // Add the image you stored from the image picker
+        imageView.image = pickedImage
+        
+        return annotationView
     }
 }
